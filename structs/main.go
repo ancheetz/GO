@@ -23,7 +23,21 @@ func main() {
 		},
 	}
 
+	//&variable --> memory address of the value of this variable; turn value into memory address
+	//*pointer --> value this memory address is pointing at; turn memory address into value
+
+	//jimPointer := &jim
+	//jimPointer.updateName("Jimmy")
+
+	jim.updateName("Jimmy")
 	jim.print()
+}
+
+//*person --> type of the variable that precedes it
+//*pointerToPerson --> the operator, the value of type person
+
+func (pointerToPerson *person) updateName(newFirstName string) {
+	(*pointerToPerson).firstName = newFirstName
 }
 
 func (p person) print() {
