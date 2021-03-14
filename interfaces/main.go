@@ -4,7 +4,7 @@ import "fmt"
 
 type bot interface {
 	//any type which has the func of getGreeting() can be passed off to any functions which use type bot
-	//use interfaces to define a set method for types
+	//use interfaces to define a set method for various types
 	getGreeting() string
 }
 
