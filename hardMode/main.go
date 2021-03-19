@@ -11,7 +11,7 @@ import (
 func main() {
 
 	stdOut := os.Args
-	fmt.Println(stdOut)
+	//fmt.Println(stdOut)
 
 	contents, err := ioutil.ReadFile(stdOut[1])
 	if err != nil {
