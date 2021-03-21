@@ -1,0 +1,3 @@
+Hello!
+
+This is my text file, which I will open by writing my GO program. In this file, I will count the number of words in the file.
