@@ -13,6 +13,7 @@ func main() {
 	wordCount()
 	charCount()
 	countLetters()
+	howManyOfEach()
 }
 
 func wordCount() {
@@ -62,5 +63,19 @@ func countLetters() {
 
 	wordsInFile := string(file)
 	characters := len([]rune(wordsInFile))
-	fmt.Printf("\nThere are %d characters in this file", characters)
+	fmt.Printf("\nThere are %d characters in this file.\n", characters)
+}
+
+func howManyOfEach() {
+
+	file, err := ioutil.ReadFile("text.txt")
+	if err != nil {
+		panic(err)
+	}
+
+	words := string(file)
+	//Fields counts the number of spaces between fields in a string
+	numWords := len(strings.Fields(words))
+	countCharacters := strings.Count(words, "o")
+	fmt.Printf("In my file, I have %d words, and %d occurences of %s", numWords, countCharacters, "\"o\". ")
 }
