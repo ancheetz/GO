@@ -2,36 +2,20 @@ package main
 
 import (
 	"encoding/csv"
+	"flag"
 	"fmt"
-	"io"
-	"log"
 	"os"
 )
 
 func main() {
 
-	getCsvProblems()
+	csvFile := flag.String("csv", "problems.csv", "a file containing records as 'questions, answers'")
+	flag.Parse()
 
-}
-
-func getCsvProblems() {
-
-	csvfile, err := os.Open("problems.csv")
+	file, err := os.Open(*csvFile)
 	if err != nil {
-		log.Fatal("Could't open the file!", err)
+		fmt.Sprintf("File would not open, %s\n", *csvFile)
+		os.Exit(1)
 	}
-
-	r := csv.NewReader(csvfile)
-
-	for {
-		record, err := r.Read()
-		if err == io.EOF {
-			break
-		}
-		if err != nil {
-			log.Fatal(err)
-		}
-		fmt.Printf("Question: %v Answer: %v\n", record[0], record[1])
-	}
-
+	r := csv.NewReader(file)
 }
