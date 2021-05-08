@@ -5,17 +5,56 @@ import (
 	"flag"
 	"fmt"
 	"os"
+	"strings"
 )
 
 func main() {
 
-	csvFile := flag.String("csv", "problems.csv", "a file containing records as 'questions, answers'")
+	csvFilename := flag.String("csv", "problems.csv", "a file containing records as 'questions, answers'")
 	flag.Parse()
 
-	file, err := os.Open(*csvFile)
+	file, err := os.Open(*csvFilename)
 	if err != nil {
-		fmt.Sprintf("File would not open, %s\n", *csvFile)
-		os.Exit(1)
+		exit(fmt.Sprintf("Failed to open CSV file, %s\n", *csvFilename))
 	}
 	r := csv.NewReader(file)
+	lines, err := r.ReadAll()
+	if err != nil {
+		exit("Failed to parse the provided CSV file.")
+	}
+	problems := parseLines(lines)
+
+	correct := 0
+	for i, p := range problems {
+		fmt.Printf("Problem #%d: %s = \n", i+1, p.q)
+		var answer string
+		fmt.Scanf("%s\n", &answer)
+		if answer == p.a {
+			correct++
+			fmt.Println("Correct!")
+		}
+	}
+	fmt.Printf("You scored %d out of %d.\n", correct, len(problems))
+}
+
+func parseLines(lines [][]string) []problem {
+	ret := make([]problem, len(lines))
+	for i, line := range lines {
+		ret[i] = problem{
+			q: line[0],
+			a: strings.TrimSpace(line[1]),
+		}
+	}
+	return ret
+}
+
+type problem struct {
+	q string
+	a string
+}
+
+//Exit message to reuse
+func exit(msg string) {
+	fmt.Println(msg)
+	os.Exit(1)
 }
