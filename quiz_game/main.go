@@ -2,36 +2,74 @@ package main
 
 import (
 	"encoding/csv"
+	"flag"
 	"fmt"
-	"io"
-	"log"
 	"os"
+	"strings"
+	"time"
 )
 
 func main() {
 
-	getCsvProblems()
+	csvFilename := flag.String("csv", "problems.csv", "a file containing records as 'questions, answers'")
+	timeLimit := flag.Int("limit", 30, "the time limit for the quiz in seconds")
+	flag.Parse()
 
+	file, err := os.Open(*csvFilename)
+	if err != nil {
+		exit(fmt.Sprintf("Failed to open CSV file, %s\n", *csvFilename))
+	}
+	r := csv.NewReader(file)
+	lines, err := r.ReadAll()
+	if err != nil {
+		exit("Failed to parse the provided CSV file.")
+	}
+	problems := parseLines(lines)
+
+	timer := time.NewTimer(time.Duration(*timeLimit) * time.Second)
+	correct := 0
+
+problemLoop:
+	for i, p := range problems {
+		fmt.Printf("Problem #%d: %s = ", i+1, p.q)
+		answerCh := make(chan string)
+		go func() {
+			var answer string
+			fmt.Scanf("%s\n", answer)
+			answerCh <- answer
+		}()
+
+		select {
+		case <-timer.C:
+			fmt.Println()
+			break problemLoop
+		case answer := <-answerCh:
+			if answer == p.a {
+				correct++
+			}
+		}
+	}
+	fmt.Printf("You scored %d out of %d.\n", correct, len(problems))
 }
 
-func getCsvProblems() {
-
-	csvfile, err := os.Open("problems.csv")
-	if err != nil {
-		log.Fatal("Could't open the file!", err)
-	}
-
-	r := csv.NewReader(csvfile)
-
-	for {
-		record, err := r.Read()
-		if err == io.EOF {
-			break
+func parseLines(lines [][]string) []problem {
+	ret := make([]problem, len(lines))
+	for i, line := range lines {
+		ret[i] = problem{
+			q: line[0],
+			a: strings.TrimSpace(line[1]),
 		}
-		if err != nil {
-			log.Fatal(err)
-		}
-		fmt.Printf("Question: %v Answer: %v\n", record[0], record[1])
 	}
+	return ret
+}
 
+type problem struct {
+	q string
+	a string
+}
+
+//Exit message to reuse
+func exit(msg string) {
+	fmt.Println(msg)
+	os.Exit(1)
 }
